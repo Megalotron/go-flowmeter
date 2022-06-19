@@ -115,7 +115,7 @@ func (p *Packet) FlowID() string {
 }
 
 // FromPCAP takes a pcap packet extracted from a file and converts it to an encapsulation.
-func (p *Packet) FromPCAP(packet gopacket.Packet) error {
+func (p *Packet) FromPCAP(packet gopacket.Packet, id uint64) error {
 	// The packet misses crucial information.
 	if packet.NetworkLayer() == nil || packet.TransportLayer() == nil {
 		return ErrInvalidPacket
@@ -147,6 +147,8 @@ func (p *Packet) FromPCAP(packet gopacket.Packet) error {
 	if packet.Layer(layers.LayerTypeTCP) != nil {
 		p.protocol = ProtocolTCP
 	}
+
+	p.id = id
 
 	return nil
 }

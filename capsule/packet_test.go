@@ -40,7 +40,7 @@ func TestNewPacketFromPcapFile(t *testing.T) {
 			packet, err := reader.GetNextPacket()
 			assert.NoError(t, err)
 
-			err = encapsulation.FromPCAP(packet)
+			err = encapsulation.FromPCAP(packet, 0)
 			assert.Equal(t, tt.err, err)
 
 			if tt.err == nil {
