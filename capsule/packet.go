@@ -1,6 +1,16 @@
 package capsule
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
+	"strconv"
+)
+
+var (
+	ErrInvalidPacket = errors.New("invalid or corrupted packet")
+)
 
 // A Packet act as an encapsulation of a PCAP *packet.
 // It is used to fill up a Flow.
@@ -102,4 +112,41 @@ func (p *Packet) Timestamp() uint64 {
 // FlowID returns the identifier of the Flow which contains this packet.
 func (p *Packet) FlowID() string {
 	return p.flowID
+}
+
+// FromPCAP takes a pcap packet extracted from a file and converts it to an encapsulation.
+func (p *Packet) FromPCAP(packet gopacket.Packet) error {
+	// The packet misses crucial information.
+	if packet.NetworkLayer() == nil || packet.TransportLayer() == nil {
+		return ErrInvalidPacket
+	}
+
+	// Packet's source and destination addresses.
+	srcIP, dstIP := packet.NetworkLayer().NetworkFlow().Endpoints()
+
+	// Packet's source and destination ports.
+	srcPortRaw, dstPortRaw := packet.TransportLayer().TransportFlow().Endpoints()
+
+	srcPort, err := strconv.ParseUint(srcPortRaw.String(), 10, 16)
+	if err != nil {
+		return err
+	}
+
+	dstPort, err := strconv.ParseUint(dstPortRaw.String(), 10, 16)
+	if err != nil {
+		return err
+	}
+
+	p.srcIP = srcIP.String()
+	p.dstIP = dstIP.String()
+	p.srcPort = uint16(srcPort)
+	p.dstPort = uint16(dstPort)
+
+	// Packet's protocol number.
+	p.protocol = ProtocolUDP
+	if packet.Layer(layers.LayerTypeTCP) != nil {
+		p.protocol = ProtocolTCP
+	}
+
+	return nil
 }
