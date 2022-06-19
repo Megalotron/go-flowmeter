@@ -98,3 +98,9 @@ func TestFlowIDGeneration(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkCreateNewPacket(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = NewPacket(0, ProtocolUDP, 4444, 80, "192.168.0.20", "192.168.0.21", 0)
+	}
+}
