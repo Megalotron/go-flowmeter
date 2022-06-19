@@ -56,3 +56,45 @@ func TestNewPacketFromPcapFile(t *testing.T) {
 		})
 	}
 }
+
+func TestFlowIDGeneration(t *testing.T) {
+	testCases := []struct {
+		name     string
+		srcIP    string
+		dstIP    string
+		srcPort  uint16
+		dstPort  uint16
+		protocol ProtocolNumber
+
+		expectedFlowID string
+	}{
+		{
+			name:     "Can generate Flow ID for TCP packet",
+			srcIP:    "192.168.0.20",
+			dstIP:    "192.168.0.21",
+			srcPort:  4444,
+			dstPort:  80,
+			protocol: ProtocolTCP,
+
+			expectedFlowID: "192.168.0.20-192.168.0.21-4444-80-6",
+		},
+		{
+			name:     "Can generate Flow ID for UDP packet",
+			srcIP:    "192.168.0.20",
+			dstIP:    "192.168.0.21",
+			srcPort:  4444,
+			dstPort:  80,
+			protocol: ProtocolUDP,
+
+			expectedFlowID: "192.168.0.20-192.168.0.21-4444-80-17",
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			capsule := NewPacket(0, tt.protocol, tt.srcPort, tt.dstPort, tt.srcIP, tt.dstIP, 0)
+
+			assert.Equal(t, tt.expectedFlowID, capsule.flowID)
+		})
+	}
+}
