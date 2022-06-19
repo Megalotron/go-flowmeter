@@ -19,6 +19,9 @@ jobs:
     name: Linter
     runs-on: ubuntu-latest
     steps:
+      - name: Install libpcap
+        run: sudo apt-get install libpcap-dev
+
       - name: Install Golang
         uses: actions/setup-go@v2
         with:
@@ -64,6 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     steps:
+      - name: Install libpcap
+        run: sudo apt-get install libpcap-dev
+
       - name: Install Go
         uses: actions/setup-go@v2
         with:
