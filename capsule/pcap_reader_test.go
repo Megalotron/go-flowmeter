@@ -14,6 +14,7 @@ func TestReadValidFile(t *testing.T) {
 	// Got those by running : tcpdump -qns 0 -X -r tests/test_ethernet.pcap
 	expectedSize := 10
 	i := 0
+
 	for {
 		packet, err := reader.GetNextPacket()
 		if packet == nil || err != nil {
